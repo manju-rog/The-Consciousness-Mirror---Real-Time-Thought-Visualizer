@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import { persist } from 'zustand/middleware';
 import {
   Interaction,
   StatisticalFeatures,
@@ -7,6 +8,15 @@ import {
   VisualizationState,
   AudioParameters,
 } from '@/types/interactions';
+import {
+  VisualizationMode,
+  ColorTheme,
+  ParticleStyle,
+  VisualizationSettings,
+  Achievement,
+  ConsciousnessMetrics,
+  SocialConnection,
+} from '@/types/visualization';
 
 interface ConsciousnessStore {
   // Raw interaction data
@@ -20,6 +30,7 @@ interface ConsciousnessStore {
 
   // Visualization state
   visualizationState: VisualizationState;
+  visualizationSettings: VisualizationSettings;
 
   // Audio state
   audioParameters: AudioParameters;
@@ -33,6 +44,14 @@ interface ConsciousnessStore {
   particleCount: number;
   qualityLevel: 'low' | 'medium' | 'high' | 'ultra';
   trackingEnabled: boolean;
+
+  // Gamification
+  achievements: Achievement[];
+  metrics: ConsciousnessMetrics;
+
+  // Social
+  connections: SocialConnection[];
+  isSharing: boolean;
 
   // Actions
   addInteraction: (interaction: Interaction) => void;
@@ -48,6 +67,17 @@ interface ConsciousnessStore {
   clearInteractions: () => void;
   updateFPS: (fps: number) => void;
   updateProcessingTime: (time: number) => void;
+
+  // New actions
+  setVisualizationMode: (mode: VisualizationMode) => void;
+  setColorTheme: (theme: ColorTheme) => void;
+  setParticleStyle: (style: ParticleStyle) => void;
+  updateVisualizationSettings: (settings: Partial<VisualizationSettings>) => void;
+  unlockAchievement: (achievementId: string) => void;
+  updateMetrics: (metrics: Partial<ConsciousnessMetrics>) => void;
+  addConnection: (connection: SocialConnection) => void;
+  removeConnection: (connectionId: string) => void;
+  setSharing: (sharing: boolean) => void;
 }
 
 export const useConsciousnessStore = create<ConsciousnessStore>((set, get) => ({
@@ -65,6 +95,20 @@ export const useConsciousnessStore = create<ConsciousnessStore>((set, get) => ({
     focusLevel: 0,
     chaosLevel: 0,
   },
+  visualizationSettings: {
+    mode: 'particles',
+    colorTheme: 'default',
+    particleStyle: 'spheres',
+    quality: 'high',
+    showGrid: false,
+    showStats: true,
+    autoRotate: true,
+    cameraSpeed: 0.5,
+    effectsIntensity: 0.7,
+    bloomEnabled: true,
+    motionBlurEnabled: false,
+    depthOfFieldEnabled: false,
+  },
   audioParameters: {
     focusPitch: 440,
     emotionFM: 0.5,
@@ -81,6 +125,19 @@ export const useConsciousnessStore = create<ConsciousnessStore>((set, get) => ({
   particleCount: 100000,
   qualityLevel: 'high',
   trackingEnabled: true,
+  achievements: [],
+  metrics: {
+    focusStreak: 0,
+    maxFocusStreak: 0,
+    totalFlowTime: 0,
+    peakCreativity: 0,
+    emotionalBalance: 0.5,
+    stressManagement: 0.5,
+    mindfulness: 0,
+    consciousnessLevel: 1,
+  },
+  connections: [],
+  isSharing: false,
 
   // Actions
   addInteraction: (interaction) =>
@@ -132,4 +189,50 @@ export const useConsciousnessStore = create<ConsciousnessStore>((set, get) => ({
 
   updateProcessingTime: (time) =>
     set({ processingTime: time }),
+
+  // New actions
+  setVisualizationMode: (mode) =>
+    set((state) => ({
+      visualizationSettings: { ...state.visualizationSettings, mode },
+    })),
+
+  setColorTheme: (theme) =>
+    set((state) => ({
+      visualizationSettings: { ...state.visualizationSettings, colorTheme: theme },
+    })),
+
+  setParticleStyle: (style) =>
+    set((state) => ({
+      visualizationSettings: { ...state.visualizationSettings, particleStyle: style },
+    })),
+
+  updateVisualizationSettings: (settings) =>
+    set((state) => ({
+      visualizationSettings: { ...state.visualizationSettings, ...settings },
+    })),
+
+  unlockAchievement: (achievementId) =>
+    set((state) => ({
+      achievements: state.achievements.map((a) =>
+        a.id === achievementId ? { ...a, unlocked: true, unlockedAt: Date.now() } : a
+      ),
+    })),
+
+  updateMetrics: (metrics) =>
+    set((state) => ({
+      metrics: { ...state.metrics, ...metrics },
+    })),
+
+  addConnection: (connection) =>
+    set((state) => ({
+      connections: [...state.connections, connection],
+    })),
+
+  removeConnection: (connectionId) =>
+    set((state) => ({
+      connections: state.connections.filter((c) => c.id !== connectionId),
+    })),
+
+  setSharing: (sharing) =>
+    set({ isSharing: sharing }),
 }));

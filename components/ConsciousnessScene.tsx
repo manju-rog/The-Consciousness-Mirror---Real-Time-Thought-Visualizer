@@ -1,11 +1,37 @@
 'use client';
 
 import { Canvas } from '@react-three/fiber';
-import { OrbitControls, Stars } from '@react-three/drei';
+import { OrbitControls, Stars, Environment } from '@react-three/drei';
 import { ParticleSystem } from './ParticleSystem';
+import { GalaxyVisualization } from './visualizations/GalaxyVisualization';
+import { MandalaVisualization } from './visualizations/MandalaVisualization';
+import { MatrixVisualization } from './visualizations/MatrixVisualization';
+import { OceanVisualization } from './visualizations/OceanVisualization';
 import { Suspense } from 'react';
+import { useConsciousnessStore } from '@/store/consciousness';
+import { EffectComposer, Bloom, DepthOfField } from '@react-three/postprocessing';
+
+function VisualizationRenderer() {
+  const visualizationSettings = useConsciousnessStore((state) => state.visualizationSettings);
+
+  switch (visualizationSettings.mode) {
+    case 'galaxy':
+      return <GalaxyVisualization />;
+    case 'mandala':
+      return <MandalaVisualization />;
+    case 'matrix':
+      return <MatrixVisualization />;
+    case 'ocean':
+      return <OceanVisualization />;
+    case 'particles':
+    default:
+      return <ParticleSystem />;
+  }
+}
 
 export function ConsciousnessScene() {
+  const visualizationSettings = useConsciousnessStore((state) => state.visualizationSettings);
+
   return (
     <div className="w-full h-screen">
       <Canvas
@@ -14,26 +40,49 @@ export function ConsciousnessScene() {
       >
         <color attach="background" args={['#000000']} />
 
-        {/* Ambient lighting */}
+        {/* Lighting based on mode */}
         <ambientLight intensity={0.3} />
         <pointLight position={[10, 10, 10]} intensity={0.8} />
         <pointLight position={[-10, -10, -10]} intensity={0.5} color="#4444ff" />
 
-        {/* Particle system */}
+        {/* Visualization */}
         <Suspense fallback={null}>
-          <ParticleSystem />
+          <VisualizationRenderer />
         </Suspense>
 
-        {/* Background stars */}
-        <Stars radius={100} depth={50} count={5000} factor={4} saturation={0} fade speed={1} />
+        {/* Background stars (except for Matrix mode) */}
+        {visualizationSettings.mode !== 'matrix' && visualizationSettings.mode !== 'ocean' && (
+          <Stars radius={100} depth={50} count={5000} factor={4} saturation={0} fade speed={1} />
+        )}
+
+        {/* Post-processing effects */}
+        {(visualizationSettings.bloomEnabled ||
+          visualizationSettings.depthOfFieldEnabled) && (
+          <EffectComposer>
+            {visualizationSettings.bloomEnabled && (
+              <Bloom
+                intensity={visualizationSettings.effectsIntensity}
+                luminanceThreshold={0.2}
+                luminanceSmoothing={0.9}
+              />
+            )}
+            {visualizationSettings.depthOfFieldEnabled && (
+              <DepthOfField
+                focusDistance={0.01}
+                focalLength={0.1}
+                bokehScale={visualizationSettings.effectsIntensity * 5}
+              />
+            )}
+          </EffectComposer>
+        )}
 
         {/* Camera controls */}
         <OrbitControls
           enableZoom={true}
           enablePan={true}
           enableRotate={true}
-          autoRotate={true}
-          autoRotateSpeed={0.5}
+          autoRotate={visualizationSettings.autoRotate}
+          autoRotateSpeed={visualizationSettings.cameraSpeed}
           maxDistance={100}
           minDistance={10}
         />
