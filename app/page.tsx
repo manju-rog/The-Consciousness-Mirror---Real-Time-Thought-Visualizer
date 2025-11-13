@@ -5,6 +5,8 @@ import { DebugPanel } from '@/components/DebugPanel';
 import { AudioControls } from '@/components/AudioControls';
 import { VisualizationControls } from '@/components/VisualizationControls';
 import { MetricsDashboard } from '@/components/MetricsDashboard';
+import { AchievementsPanel } from '@/components/AchievementsPanel';
+import { ConsciousnessExport } from '@/components/ConsciousnessExport';
 import { useInteractionTracking } from '@/hooks/useInteractionTracking';
 import { useDataProcessing } from '@/hooks/useDataProcessing';
 import { useAudioSynthesis } from '@/hooks/useAudioSynthesis';
@@ -44,6 +46,12 @@ export default function Home() {
 
       {/* Metrics Dashboard */}
       <MetricsDashboard />
+
+      {/* Achievements */}
+      <AchievementsPanel />
+
+      {/* Export/Share */}
+      <ConsciousnessExport />
 
       {/* Title overlay */}
       <div className="absolute top-8 left-8 z-40 pointer-events-none">

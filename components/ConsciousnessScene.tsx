@@ -7,6 +7,11 @@ import { GalaxyVisualization } from './visualizations/GalaxyVisualization';
 import { MandalaVisualization } from './visualizations/MandalaVisualization';
 import { MatrixVisualization } from './visualizations/MatrixVisualization';
 import { OceanVisualization } from './visualizations/OceanVisualization';
+import { BrainVisualization } from './visualizations/BrainVisualization';
+import { ForestVisualization } from './visualizations/ForestVisualization';
+import { CrystalVisualization } from './visualizations/CrystalVisualization';
+import { DNAVisualization } from './visualizations/DNAVisualization';
+import { QuantumVisualization } from './visualizations/QuantumVisualization';
 import { Suspense } from 'react';
 import { useConsciousnessStore } from '@/store/consciousness';
 import { EffectComposer, Bloom, DepthOfField } from '@react-three/postprocessing';
@@ -23,6 +28,16 @@ function VisualizationRenderer() {
       return <MatrixVisualization />;
     case 'ocean':
       return <OceanVisualization />;
+    case 'brain':
+      return <BrainVisualization />;
+    case 'forest':
+      return <ForestVisualization />;
+    case 'crystal':
+      return <CrystalVisualization />;
+    case 'dna':
+      return <DNAVisualization />;
+    case 'quantum':
+      return <QuantumVisualization />;
     case 'particles':
     default:
       return <ParticleSystem />;
